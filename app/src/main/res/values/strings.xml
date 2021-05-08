@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Example</string>
+    <string name="listResponseError">An Error Occurred While Loading Data!</string>
 </resources>

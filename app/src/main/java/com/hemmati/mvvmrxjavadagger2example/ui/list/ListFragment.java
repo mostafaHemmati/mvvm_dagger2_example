@@ -23,20 +23,20 @@ import javax.inject.Inject;
 
 public class ListFragment extends BaseFragment implements AparatItemSelectedListener {
 
-   private RecyclerView listView;
-   private TextView errorTextView;
-   private View loadingView;
+    private RecyclerView listView;
+    private TextView errorTextView;
+    private View loadingView;
 
     @Inject
     ViewModelFactory viewModelFactory;
 
     private ListViewModel viewModel;
+    private VideoListAdapter adapter;
 
     @Override
     protected int layoutRes() {
         return R.layout.layout_video_list;
     }
-
 
 
     @Override
@@ -53,14 +53,15 @@ public class ListFragment extends BaseFragment implements AparatItemSelectedList
     }
 
     private void recyclerViewConfig() {
-        listView.setAdapter(new VideoListAdapter(viewModel, this, this));
+        adapter = new VideoListAdapter(this);
+        listView.setAdapter(adapter);
         listView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void initView(View view) {
-        listView=view.findViewById(R.id.recyclerView);
-        errorTextView=view.findViewById(R.id.tv_error);
-        loadingView=view.findViewById(R.id.loading_view);
+        listView = view.findViewById(R.id.recyclerView);
+        errorTextView = view.findViewById(R.id.tv_error);
+        loadingView = view.findViewById(R.id.loading_view);
     }
 
     @Override
@@ -73,17 +74,20 @@ public class ListFragment extends BaseFragment implements AparatItemSelectedList
     }
 
     private void observableViewModel() {
-        viewModel.getMostViewList().observe(getViewLifecycleOwner(), mostViewedVideosListModel ->  {
-            if(mostViewedVideosListModel != null) listView.setVisibility(View.VISIBLE);
+        viewModel.getMostViewList().observe(getViewLifecycleOwner(), mostViewedVideosListModel -> {
+            if (mostViewedVideosListModel != null) {
+                listView.setVisibility(View.VISIBLE);
+                adapter.updateList(mostViewedVideosListModel);
+            }
         });
 
 
         viewModel.getError().observe(getViewLifecycleOwner(), isError -> {
-            if (isError != null) if(isError) {
+            if (isError != null) if (isError) {
                 errorTextView.setVisibility(View.VISIBLE);
                 listView.setVisibility(View.GONE);
-                errorTextView.setText("An Error Occurred While Loading Data!");
-            }else {
+                errorTextView.setText(R.string.listResponseError);
+            } else {
                 errorTextView.setVisibility(View.GONE);
                 errorTextView.setText(null);
             }
